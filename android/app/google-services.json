@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "677761960214",
+    "project_id": "hr-app-ver2",
+    "storage_bucket": "hr-app-ver2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:677761960214:android:e77c07677846da2cc3e837",
+        "android_client_info": {
+          "package_name": "com.example.hr_app_ver2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDNSxrOVigzxJ1GU6ZDKp0YE_EFBKNyqqw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

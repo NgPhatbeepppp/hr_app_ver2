@@ -1,0 +1,31 @@
+name: hr_app_ver2
+description: "A new Flutter project."
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: ^3.7.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  firebase_core: ^2.24.2
+  firebase_auth: ^4.20.0  # Thêm Firebase Authentication
+  cloud_firestore: ^4.13.6 # Thêm Firestore để lưu dữ liệu
+  firebase_storage: ^11.6.7
+  firebase_messaging: ^14.7.21
+  firebase_auth_web: ^5.12.0 # Để Firebase tự chọn phiên bản phù hợp
+  js: ^0.7.2 # Cho phép cập nhật phiên bản mới nhất của `js`
+  provider: ^6.1.2
+  google_fonts: ^6.2.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/
+    - assets/images/
