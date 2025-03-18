@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hr_app_ver2/screens/admin/admin_employees_screen.dart';
-
-
+import 'package:hr_app_ver2/screens/admin/delete_employee.dart';
 class AdminDashboard extends StatefulWidget {
   @override
   _AdminDashboardState createState() => _AdminDashboardState();
@@ -16,6 +15,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     Center(child: Text("Trang tổng quan", style: TextStyle(fontSize: 24))),
     AdminEmployeesScreen(),
     Center(child: Text("Báo cáo", style: TextStyle(fontSize: 24))),
+    DeleteEmployee(),
   ];
 
   @override
@@ -58,6 +58,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 _buildMenuItem(Icons.dashboard, "Trang tổng quan", 0),
                 _buildMenuItem(Icons.people, "Nhân viên", 1),
                 _buildMenuItem(Icons.bar_chart, "Báo cáo", 2),
+                _buildMenuItem(Icons.delete, "Danh sách xóa", 3),
                 Spacer(),
                 Divider(color: Colors.white24),
                 ListTile(

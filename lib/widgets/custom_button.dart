@@ -18,7 +18,7 @@ class CustomButton extends StatelessWidget {
       onPressed: isLoading ? null : onPressed,
       style: ElevatedButton.styleFrom(
         padding: EdgeInsets.symmetric(vertical: 16), // ✅ Lớn hơn để dễ bấm
-        textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        textStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
         backgroundColor: Colors.blue[400], // ✅ Màu xanh dương nhẹ
         foregroundColor: Colors.white, // ✅ Màu chữ trắng
         shape: RoundedRectangleBorder(
