@@ -10,7 +10,9 @@ class Employee {
   String address;
   String dob;
   String startDate;
-  String status;
+  String status;  
+  String role;
+
 
   Employee({
     required this.id,
@@ -23,6 +25,7 @@ class Employee {
     required this.dob,
     required this.startDate,
     required this.status,
+    required this.role,
   });
 
   /// Chuyển dữ liệu từ Firestore thành object `Employee`
@@ -40,6 +43,7 @@ class Employee {
       dob: data['dob'] ?? '',
       startDate: data['startDate'] ?? '',
       status: data['status'] ?? '',
+      role: data['role'] ?? '',
     );
   }
 
@@ -55,6 +59,7 @@ class Employee {
       'dob': dob,
       'startDate': startDate,
       'status': status,
+      'role': role,
     };
   }
 }

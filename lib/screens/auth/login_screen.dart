@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:hr_app_ver2/widgets/custom_textfield.dart';
 import 'package:hr_app_ver2/widgets/custom_button.dart';
 import 'package:hr_app_ver2/widgets/bottom_nav.dart';
@@ -15,28 +16,63 @@ class _LoginScreenState extends State<LoginScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
+  bool _rememberMe = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRememberMe();
+  }
+
+  void _loadRememberMe() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (!mounted) return; // ✅ Tránh lỗi nếu widget đã bị gỡ bỏ
+
+    setState(() {
+      _rememberMe = prefs.getBool('rememberMe') ?? false;
+      if (_rememberMe) {
+        _emailController.text = prefs.getString('savedEmail') ?? "";
+        _passwordController.text = prefs.getString('savedPassword') ?? "";
+      }
+    });
+  }
+
+  void _saveRememberMe() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (_rememberMe) {
+      await prefs.setBool('rememberMe', true);
+      await prefs.setString('savedEmail', _emailController.text);
+      await prefs.setString('savedPassword', _passwordController.text);
+    } else {
+      await prefs.setBool('rememberMe', false);
+      await prefs.remove('savedEmail');
+      await prefs.remove('savedPassword');
+    }
+  }
 
   Future<void> _login() async {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isLoading = true);
+
     try {
       await _auth.signInWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
-       //  Chuyển màn hình với hiệu ứng Fade In
-       Navigator.of(context).pushReplacement(
-            PageRouteBuilder(
-              pageBuilder: (context, animation, secondaryAnimation) => BottomNav(),
-              transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                return FadeTransition(
-                  opacity: animation,
-                  child: child,
-                );
-              },
-              transitionDuration: Duration(milliseconds: 500), // ⏳ Thời gian hiệu ứng
-            ),
-          );
+
+      _saveRememberMe();
+
+      if (mounted) {
+        Navigator.of(context).pushReplacement(
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) => BottomNav(),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              return FadeTransition(opacity: animation, child: child);
+            },
+            transitionDuration: Duration(milliseconds: 500),
+          ),
+        );
+      }
     } on FirebaseAuthException catch (e) {
       String errorMessage = "Đã xảy ra lỗi";
       if (e.code == 'user-not-found') {
@@ -44,12 +80,27 @@ class _LoginScreenState extends State<LoginScreen> {
       } else if (e.code == 'wrong-password') {
         errorMessage = "Mật khẩu không chính xác";
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(errorMessage)),
-      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(errorMessage)),
+        );
+      }
     }
-    setState(() => _isLoading = false);
+
+    if (mounted) {
+      setState(() => _isLoading = false);
+    }
   }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -74,18 +125,19 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // 🔹 Logo to rõ hơn
                       ClipRRect(
-                        borderRadius: BorderRadius.circular(20), // ✅ Bo góc logo
-                        child: Image.asset("assets/images/logo.png", height: 180), // ✅ Tăng kích thước
+                        borderRadius: BorderRadius.circular(20),
+                        child: Image.asset("assets/images/logo.png", height: 160),
                       ),
-                      SizedBox(height: 30),
+                      SizedBox(height: 20),
+
                       // 🔹 Tên App
                       Text(
                         "Hooman",
                         style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.blue[700]),
                       ),
                       SizedBox(height: 20),
+
                       // 🔹 Email
                       CustomTextField(
                         controller: _emailController,
@@ -94,20 +146,41 @@ class _LoginScreenState extends State<LoginScreen> {
                         isPassword: false,
                       ),
                       SizedBox(height: 12),
-                      // 🔹 Mật khẩu (Thêm hint)
+
+                      // 🔹 Mật khẩu
                       CustomTextField(
                         controller: _passwordController,
                         hintText: "Nhập mật khẩu",
                         label: "Mật khẩu",
                         isPassword: true,
                       ),
-                      SizedBox(height: 10),
-                      // 🔹 Quên mật khẩu
+                      SizedBox(height: 12),
+
+                      // 🔹 Checkbox "Ghi nhớ đăng nhập" + "Quên mật khẩu"
+                      // 🔹 Checkbox "Ghi nhớ đăng nhập"
+                      Row(
+                        children: [
+                          Checkbox(
+                            value: _rememberMe,
+                            onChanged: (value) {
+                              setState(() {
+                                _rememberMe = value!;
+                              });
+                            },
+                          ),
+                          Text(
+                            "Ghi nhớ đăng nhập",
+                            style: TextStyle(fontSize: 16),
+                          ),
+                        ],
+                      ),
+
+                      // 🔹 "Quên mật khẩu?" được đẩy xuống dưới
                       Align(
                         alignment: Alignment.centerRight,
                         child: TextButton(
                           onPressed: () {
-                            // TODO: Chuyển sang màn hình quên mật khẩu
+                            Navigator.pushNamed(context, '/forgot-password');
                           },
                           child: Text(
                             "Quên mật khẩu?",
@@ -115,8 +188,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                       ),
+
                       SizedBox(height: 25),
-                      // 🔹 Nút Login
+
+                      // 🔹 Nút Đăng nhập
                       _isLoading
                           ? CircularProgressIndicator()
                           : CustomButton(
