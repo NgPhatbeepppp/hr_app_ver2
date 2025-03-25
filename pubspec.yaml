@@ -20,6 +20,8 @@ dependencies:
   google_fonts: ^6.2.1
   shared_preferences: ^2.1.1
   intl: ^0.20.2
+  curved_navigation_bar: ^1.0.6
+  sidebarx: ^0.17.1
 
 dev_dependencies:
   flutter_test:

@@ -22,11 +22,15 @@ class _AdminEmployeesScreenState extends State<AdminEmployeesScreen> {
     });
   }
 
-  void _deleteEmployee(String employeeId) async {
+void _deleteEmployee(String employeeId) async {
   await _firestore.collection('employees').doc(employeeId).update({
-    'status': 'Đã Xóa'
+    'status': 'Đã xóa',
+    'deletedAt': FieldValue.serverTimestamp(),
   });
+  setState(() {}); // Cập nhật lại danh sách hiển thị
 }
+
+
 
 
   void _openFilterSheet() {
@@ -64,6 +68,14 @@ class _AdminEmployeesScreenState extends State<AdminEmployeesScreen> {
                 trailing: _filterStatus == "Nghỉ việc" ? Icon(Icons.check, color: Colors.blue) : null,
                 onTap: () {
                   setState(() => _filterStatus = "Nghỉ việc");
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                title: Text("Đã xóa"),
+                trailing: _filterStatus == "Đã xóa" ? Icon(Icons.check, color: Colors.blue) : null,
+                onTap: () {
+                  setState(() => _filterStatus = "Đã xóa");
                   Navigator.pop(context);
                 },
               ),
