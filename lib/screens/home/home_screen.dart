@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hr_app_ver2/screens/employees/attendance_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   @override
@@ -27,7 +28,7 @@ class HomeScreen extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black87, // ✅ Chỉnh màu chữ tối hơn
+                      color: Colors.black87,
                       shadows: [
                         Shadow(
                           blurRadius: 5.0,
@@ -42,7 +43,7 @@ class HomeScreen extends StatelessWidget {
                     "Quản lý tài khoản nhân viên dễ dàng & hiệu quả",
                     style: TextStyle(
                       fontSize: 16,
-                      color: Colors.black87, // ✅ Đổi màu chữ tối hơn
+                      color: Colors.black87,
                       fontWeight: FontWeight.w500,
                       shadows: [
                         Shadow(
@@ -64,6 +65,7 @@ class HomeScreen extends StatelessWidget {
                         _buildFeatureCard(Icons.notifications, "Thông báo"),
                         _buildFeatureCard(Icons.calendar_today, "Lịch nghỉ"),
                         _buildFeatureCard(Icons.attach_money, "Bảng lương"),
+                        _buildFeatureCard(Icons.access_time, "Chấm công", context), // ✅ Nút chấm công
                       ],
                     ),
                   ),
@@ -76,25 +78,36 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildFeatureCard(IconData icon, String title) {
-    return Card(
-      color: Colors.white.withOpacity(0.95), // ✅ Làm thẻ rõ hơn
-      elevation: 6,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, size: 40, color: Colors.blueAccent),
-          SizedBox(height: 10),
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87, // ✅ Chỉnh màu chữ tối hơn
+  // Hàm tạo thẻ chức năng
+  Widget _buildFeatureCard(IconData icon, String title, [BuildContext? context]) {
+    return GestureDetector(
+      onTap: () {
+        if (title == "Chấm công" && context != null) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => AttendanceScreen()),
+          );
+        }
+      },
+      child: Card(
+        color: Colors.white.withOpacity(0.95),
+        elevation: 6,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 40, color: Colors.blueAccent),
+            SizedBox(height: 10),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

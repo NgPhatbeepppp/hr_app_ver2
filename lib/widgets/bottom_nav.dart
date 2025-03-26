@@ -6,6 +6,7 @@ import '../screens/home/home_screen.dart';
 import '../screens/employees/employees_screen.dart';
 import '../screens/notifications/notifications_screen.dart';
 import '../screens/profile/profile_screen.dart';
+import '../screens/employees/attendance_history_screen.dart'; 
 
 class BottomNav extends StatefulWidget {
   @override
@@ -22,6 +23,7 @@ class _BottomNavState extends State<BottomNav> {
     EmployeesScreen(),
     NotificationsScreen(),
     ProfileScreen(),
+    AttendanceHistoryScreen(),
   ];
 
   @override
@@ -90,6 +92,11 @@ class _BottomNavState extends State<BottomNav> {
               title: Text('Thông báo'),
               onTap: () => _changeScreen(2),
             ),
+            ListTile(
+              leading: Icon(Icons.history),
+              title: Text('Lịch sử chấm công'),
+              onTap: () => _changeScreen(4),
+            ),
             Divider(),
             ListTile(
               leading: Icon(Icons.logout, color: Colors.red),
@@ -127,6 +134,7 @@ class _BottomNavState extends State<BottomNav> {
                 Icon(Icons.people, size: 30, color: Colors.white),
                 Icon(Icons.notifications, size: 30, color: Colors.white),
                 Icon(Icons.person, size: 30, color: Colors.white),
+                Icon(Icons.history, size: 30, color: Colors.white),
               ],
             ),
           ),
