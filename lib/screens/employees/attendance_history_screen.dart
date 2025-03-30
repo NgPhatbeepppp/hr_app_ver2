@@ -15,10 +15,9 @@ class AttendanceHistoryScreen extends StatelessWidget {
       ),
       body: StreamBuilder(
         stream: FirebaseFirestore.instance
-            .collection('employees')
-            .doc(userId)
             .collection('attendance')
-            .orderBy('timestamp', descending: true)
+            .where('userId', isEqualTo: userId)
+            .orderBy('checkInTime', descending: true)
             .snapshots(),
         builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -33,32 +32,45 @@ class AttendanceHistoryScreen extends StatelessWidget {
             separatorBuilder: (context, index) => Divider(thickness: 1),
             itemBuilder: (context, index) {
               var data = snapshot.data!.docs[index];
-              DateTime timestamp = (data['timestamp'] as Timestamp).toDate();
-              String status = data['status'];
-              double latitude = data['latitude'];
-              double longitude = data['longitude'];
 
-              IconData icon = status == "Check-in" ? Icons.login : Icons.logout;
-              Color iconColor = status == "Check-in" ? Colors.green : Colors.red;
+              DateTime checkInTime = (data['checkInTime'] as Timestamp).toDate();
+              DateTime? checkOutTime = data['checkOutTime'] != null
+                  ? (data['checkOutTime'] as Timestamp).toDate()
+                  : null;
+
+              // Lấy dữ liệu vị trí từ Map
+              Map<String, dynamic>? location = data['location'] as Map<String, dynamic>?;
+              double latitude = location?['latitude'] ?? 0.0;
+              double longitude = location?['longitude'] ?? 0.0;
+
+              String workDuration = checkOutTime != null
+                  ? _calculateDuration(checkInTime, checkOutTime)
+                  : "Đang làm việc";
 
               return Card(
                 elevation: 3,
                 margin: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 child: ListTile(
-                  leading: Icon(icon, color: iconColor, size: 30),
+                  leading: Icon(Icons.access_time, color: Colors.blue, size: 30),
                   title: Text(
-                    "Ngày: ${DateFormat('dd/MM/yyyy').format(timestamp)}",
+                    "Ngày: ${DateFormat('dd/MM/yyyy').format(checkInTime)}",
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("Thời gian: ${DateFormat('HH:mm').format(timestamp)}"),
-                      Text("Trạng thái: $status"),
+                      Text("Check-in: ${DateFormat('HH:mm').format(checkInTime)}"),
+                      Text(
+                        checkOutTime != null
+                            ? "Check-out: ${DateFormat('HH:mm').format(checkOutTime)}"
+                            : "Chưa Check-out",
+                        style: TextStyle(color: checkOutTime != null ? Colors.black : Colors.red),
+                      ),
+                      Text("Thời gian làm việc: $workDuration"),
                       Text("Vị trí: ($latitude, $longitude)"),
                     ],
                   ),
-                  trailing: Icon(Icons.location_on, color: Colors.blue),
+                  trailing: Icon(Icons.location_on, color: Colors.redAccent),
                 ),
               );
             },
@@ -66,5 +78,12 @@ class AttendanceHistoryScreen extends StatelessWidget {
         },
       ),
     );
+  }
+
+  String _calculateDuration(DateTime checkIn, DateTime checkOut) {
+    Duration diff = checkOut.difference(checkIn);
+    int hours = diff.inHours;
+    int minutes = (diff.inMinutes % 60);
+    return "${hours}h ${minutes}m";
   }
 }
