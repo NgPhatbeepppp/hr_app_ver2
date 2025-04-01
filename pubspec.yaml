@@ -24,6 +24,9 @@ dependencies:
   sidebarx: ^0.17.1
   geolocator: ^12.0.0
   permission_handler: ^11.0.1
+  excel: ^2.0.0-null-safety-3
+  path_provider: ^2.1.1
+  universal_html: ^2.2.4 # Dùng để tải file trên web
 dev_dependencies:
   flutter_test:
     sdk: flutter

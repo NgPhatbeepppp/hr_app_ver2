@@ -1,7 +1,43 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hr_app_ver2/screens/employees/attendance_screen.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  bool isCheckedIn = false; // Trạng thái chấm công
+
+  @override
+  void initState() {
+    super.initState();
+    _getAttendanceStatus();
+  }
+
+  Future<void> _getAttendanceStatus() async {
+    String userId = _auth.currentUser?.uid ?? '';
+    if (userId.isEmpty) return;
+
+    var snapshot = await _firestore
+        .collection('employees')
+        .doc(userId)
+        .collection('attendance')
+        .orderBy('timestamp', descending: true)
+        .limit(1)
+        .get();
+
+    if (snapshot.docs.isNotEmpty) {
+      setState(() {
+        isCheckedIn = snapshot.docs.first['status'] == "Check-in";
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,6 +59,7 @@ class HomeScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Tiêu đề
                   Text(
                     "Chào mừng bạn!",
                     style: TextStyle(
@@ -55,9 +92,46 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: 20),
+
+                  // Hộp trạng thái chấm công
+                  Container(
+                    padding: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.9),
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 6,
+                          offset: Offset(2, 2),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          isCheckedIn ? Icons.check_circle : Icons.cancel,
+                          color: isCheckedIn ? Colors.green : Colors.red,
+                          size: 32,
+                        ),
+                        SizedBox(width: 10),
+                        Text(
+                          isCheckedIn ? "Đang chấm công" : "Chưa chấm công",
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 20),
+
+                  // Lưới chức năng
                   Expanded(
                     child: GridView.count(
-                      crossAxisCount: 2,
+                      crossAxisCount: 3, // 3 cột thay vì 2
                       crossAxisSpacing: 10,
                       mainAxisSpacing: 10,
                       children: [
@@ -66,6 +140,10 @@ class HomeScreen extends StatelessWidget {
                         _buildFeatureCard(Icons.calendar_today, "Lịch nghỉ"),
                         _buildFeatureCard(Icons.attach_money, "Bảng lương"),
                         _buildFeatureCard(Icons.access_time, "Chấm công", context), // ✅ Nút chấm công
+                        _buildFeatureCard(Icons.insert_chart, "Thống kê"),
+                        _buildFeatureCard(Icons.settings, "Cài đặt"),
+                        _buildFeatureCard(Icons.support, "Hỗ trợ"),
+                        _buildFeatureCard(Icons.info, "Thông tin"),
                       ],
                     ),
                   ),
@@ -96,15 +174,16 @@ class HomeScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 40, color: Colors.blueAccent),
-            SizedBox(height: 10),
+            Icon(icon, size: 30, color: Colors.blueAccent), // Giảm kích thước icon
+            SizedBox(height: 8),
             Text(
               title,
               style: TextStyle(
-                fontSize: 16,
+                fontSize: 14, // Giảm kích thước chữ
                 fontWeight: FontWeight.bold,
                 color: Colors.black87,
               ),
+              textAlign: TextAlign.center,
             ),
           ],
         ),
