@@ -1,6 +1,9 @@
-import 'package:flutter/material.dart'; 
+import 'dart:ui';
+import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:animate_do/animate_do.dart';
 
 class EditProfileScreen extends StatefulWidget {
   @override
@@ -11,11 +14,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  TextEditingController _nameController = TextEditingController();
-  TextEditingController _phoneController = TextEditingController();
-  TextEditingController _addressController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
   DateTime? _dob;
-  String _position = ""; // Chỉ hiển thị, không chỉnh sửa
+  String _position = "";
   bool _isLoading = false;
 
   @override
@@ -32,7 +35,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         _nameController.text = userDoc['name'];
         _phoneController.text = userDoc['phone'];
         _addressController.text = userDoc['address'];
-        _position = userDoc['position']; // Không cho chỉnh sửa
+        _position = userDoc['position'];
         _dob = DateTime.tryParse(userDoc['dob']);
       });
     }
@@ -77,8 +80,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       controller: controller,
       decoration: InputDecoration(
         labelText: label,
-        prefixIcon: Icon(icon, color: Colors.blueAccent),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+        prefixIcon: Icon(icon, color: Colors.blue.shade700),
+        filled: true,
+        fillColor: Colors.white.withOpacity(0.9),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
   }
@@ -86,41 +91,91 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Chỉnh sửa thông tin")),
-      body: Padding(
-        padding: EdgeInsets.all(16),
-        child: Card(
-          elevation: 6,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-          child: Padding(
-            padding: EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildTextField(_nameController, "Họ và tên", Icons.person),
-                SizedBox(height: 10),
-                _buildTextField(_phoneController, "Số điện thoại", Icons.phone),
-                SizedBox(height: 10),
-                _buildTextField(_addressController, "Địa chỉ", Icons.location_on),
-                SizedBox(height: 10),
-                ListTile(
-                  leading: Icon(Icons.work, color: Colors.blueAccent),
-                  title: Text("Chức vụ: $_position", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                ),
-                ListTile(
-                  leading: Icon(Icons.calendar_today, color: Colors.blueAccent),
-                  title: Text(_dob != null ? "Ngày sinh: ${_dob!.day}/${_dob!.month}/${_dob!.year}" : "Chọn ngày sinh"),
-                  onTap: () => _selectDate(context),
-                ),
-              ],
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        title: Text("Chỉnh sửa thông tin", style: GoogleFonts.poppins()),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: BackButton(color: Colors.white),
+      ),
+      body: Stack(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.lightBlue.shade200, Colors.blue.shade400],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
             ),
           ),
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _updateProfile,
-        child: _isLoading ? CircularProgressIndicator(color: Colors.white) : Icon(Icons.save),
-        backgroundColor: Colors.blueAccent,
+          FadeInUp(
+            duration: Duration(milliseconds: 600),
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 100),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(25),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                    child: Container(
+                      padding: EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.3),
+                        borderRadius: BorderRadius.circular(25),
+                        border: Border.all(color: Colors.white.withOpacity(0.2)),
+                      ),
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            _buildTextField(_nameController, "Họ và tên", Icons.person),
+                            SizedBox(height: 12),
+                            _buildTextField(_phoneController, "Số điện thoại", Icons.phone),
+                            SizedBox(height: 12),
+                            _buildTextField(_addressController, "Địa chỉ", Icons.location_on),
+                            SizedBox(height: 12),
+                            ListTile(
+                              leading: Icon(Icons.work, color: Colors.blue.shade700),
+                              title: Text(
+                                "Chức vụ: $_position",
+                                style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600),
+                              ),
+                            ),
+                            ListTile(
+                              leading: Icon(Icons.calendar_today, color: Colors.blue.shade700),
+                              title: Text(
+                                _dob != null
+                                    ? "Ngày sinh: ${_dob!.day}/${_dob!.month}/${_dob!.year}"
+                                    : "Chọn ngày sinh",
+                                style: GoogleFonts.poppins(fontSize: 16),
+                              ),
+                              onTap: () => _selectDate(context),
+                            ),
+                            SizedBox(height: 20),
+                            ElevatedButton.icon(
+                              onPressed: _isLoading ? null : _updateProfile,
+                              icon: _isLoading
+                                  ? SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                                  : Icon(Icons.save),
+                              label: Text("Lưu thay đổi", style: GoogleFonts.poppins()),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blue.shade700,
+                                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          )
+        ],
       ),
     );
   }

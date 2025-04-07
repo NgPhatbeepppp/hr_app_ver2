@@ -5,12 +5,15 @@ import 'firebase_options.dart';
 import 'package:hr_app_ver2/screens/auth/login_screen.dart';
 import 'package:hr_app_ver2/screens/profile/profile_screen.dart';
 import 'package:hr_app_ver2/screens/auth/forgot_password_screen.dart';
-import 'package:hr_app_ver2/screens/profile/leave_request_screen.dart';
+import 'package:hr_app_ver2/screens/employees/leave_request_screen.dart';
 import 'package:hr_app_ver2/screens/profile/edit_profile_screen.dart';
+import 'package:hr_app_ver2/screens/employees/employee_salary_screen.dart';
+import 'package:hr_app_ver2/screens/employees/attendance_screen.dart';
+import 'package:hr_app_ver2/services/notification_service.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-
+  await NotificationService().init();
   runApp(MyApp(isWeb: false)); // ✅ Chạy giao diện Mobile
 }
 class MyApp extends StatelessWidget {
@@ -25,10 +28,10 @@ class MyApp extends StatelessWidget {
       routes: {
         "/login": (context) => LoginScreen(), // Định nghĩa trang login
         "/profile": (context) => ProfileScreen(), // Thêm các trang khác nếu cần
-        //TODO '/attendance': (context) => AttendanceScreen(),
+        '/attendance': (context) => AttendanceScreen(),
         "/forgot-password": (context) => ForgotPasswordScreen(),
         //TODO '/attendance_history': (context) => AttendanceHistoryScreen(),
-        //TODO '/salary': (context) => SalaryScreen(),
+        '/salary': (context) => EmployeeSalaryScreen(),
         '/leave_request': (context) => LeaveRequestScreen(),
         '/edit_profile': (context) => EditProfileScreen(),
       },

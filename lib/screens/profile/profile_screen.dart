@@ -1,6 +1,10 @@
-import 'package:flutter/material.dart'; 
+// lib/screens/profile_screen.dart
+import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:animate_do/animate_do.dart';
+import 'package:intl/intl.dart';
 
 class ProfileScreen extends StatefulWidget {
   @override
@@ -43,89 +47,213 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Thông tin cá nhân"),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.logout),
-            onPressed: _signOut,
-          ),
-        ],
+Widget build(BuildContext context) {
+  return Scaffold(
+    body: Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Colors.blueAccent.shade700,
+            Colors.indigo.shade900,
+          ],
+        ),
       ),
-      body: _isLoading
-          ? Center(child: CircularProgressIndicator())
-          : userData == null
-              ? Center(child: Text("Không tìm thấy thông tin nhân viên"))
-              : SingleChildScrollView(
-                  padding: EdgeInsets.only(
-                    left: 16.0,
-                    right: 16.0,
-                    bottom: MediaQuery.of(context).padding.bottom + 80,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      CircleAvatar(
-                        radius: 50,
-                        backgroundColor: Colors.blue,
-                        child: Icon(Icons.person, size: 50, color: Colors.white),
-                      ),
-                      SizedBox(height: 10),
-                      Text(
-                        userData!["name"],
-                        style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.blue),
-                      ),
-                      SizedBox(height: 20),
-                      Card(
-                        elevation: 4,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                        child: Padding(
-                          padding: const EdgeInsets.all(20.0),
-                          child: Column(
-                            children: [
-                              _buildInfoRow(Icons.badge, "Chức vụ", userData!["position"]),
-                              _buildInfoRow(Icons.email, "Email", userData!["email"]),
-                              _buildInfoRow(Icons.phone, "Số điện thoại", userData!["phone"]),
-                              _buildInfoRow(Icons.location_on, "Địa chỉ", userData!["address"]),
-                              _buildInfoRow(Icons.cake, "Ngày sinh", _formatDate(userData!["dob"])),
-                              _buildInfoRow(Icons.calendar_today, "Ngày bắt đầu", _formatDate(userData!["startDate"])),
-                              _buildInfoRow(Icons.work, "Trạng thái", userData!["status"]),
-                            ],
-                          ),
+      child: SafeArea(
+        child: _isLoading
+            ? Center(child: CircularProgressIndicator(color: Colors.white))
+            : userData == null
+                ? Center(
+                    child: FadeInUp(
+                      duration: Duration(milliseconds: 1200),
+                      child: Text(
+                        "Không tìm thấy thông tin nhân viên",
+                        style: GoogleFonts.poppins(
+                          fontSize: 18,
+                          color: Colors.white70,
                         ),
                       ),
-                      SizedBox(height: 20),
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          Navigator.pushNamed(context, "/edit_profile");
-                        },
-                        icon: Icon(Icons.edit),
-                        label: Text("Chỉnh sửa hồ sơ"),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.orange,
-                          padding: EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                          textStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  )
+                : SizedBox(
+                    height: MediaQuery.of(context).size.height -
+                        MediaQuery.of(context).padding.top, // Full height minus top padding
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.only(
+                        left: 20.0,
+                        right: 20.0,
+                        top: 10.0,
+                        bottom: MediaQuery.of(context).padding.bottom + 20,
+                      ),
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight: MediaQuery.of(context).size.height -
+                              MediaQuery.of(context).padding.top -
+                              MediaQuery.of(context).padding.bottom,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            // Header
+                            FadeInDown(
+                              duration: Duration(milliseconds: 800),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    "Thông tin cá nhân",
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 28,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: Icon(Icons.logout, color: Colors.white),
+                                    onPressed: _signOut,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            SizedBox(height: 20),
+                            // Avatar và tên
+                            FadeInUp(
+                              duration: Duration(milliseconds: 1000),
+                              child: CircleAvatar(
+                                radius: 60,
+                                backgroundColor: Colors.white.withOpacity(0.95),
+                                child: Icon(
+                                  Icons.person,
+                                  size: 60,
+                                  color: Colors.blueAccent.shade700,
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: 10),
+                            FadeInUp(
+                              duration: Duration(milliseconds: 1100),
+                              child: Text(
+                                userData!["name"] ?? "Không xác định",
+                                style: GoogleFonts.poppins(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: 20),
+                            // Thông tin cá nhân
+                            FadeInUp(
+                              duration: Duration(milliseconds: 1200),
+                              child: Card(
+                                elevation: 6,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                                color: Colors.white.withOpacity(0.95),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(20.0),
+                                  child: Column(
+                                    children: [
+                                      _buildInfoRow(
+                                        Icons.badge,
+                                        "Chức vụ",
+                                        userData!["position"] ?? "Không xác định",
+                                      ),
+                                      _buildInfoRow(
+                                        Icons.email,
+                                        "Email",
+                                        userData!["email"] ?? "Không xác định",
+                                      ),
+                                      _buildInfoRow(
+                                        Icons.phone,
+                                        "Số điện thoại",
+                                        userData!["phone"] ?? "Không xác định",
+                                      ),
+                                      _buildInfoRow(
+                                        Icons.location_on,
+                                        "Địa chỉ",
+                                        userData!["address"] ?? "Không xác định",
+                                      ),
+                                      _buildInfoRow(
+                                        Icons.cake,
+                                        "Ngày sinh",
+                                        _formatDate(userData!["dob"]),
+                                      ),
+                                      _buildInfoRow(
+                                        Icons.calendar_today,
+                                        "Ngày bắt đầu",
+                                        _formatDate(userData!["startDate"]),
+                                      ),
+                                      _buildInfoRow(
+                                        Icons.work,
+                                        "Trạng thái",
+                                        userData!["status"] ?? "Không xác định",
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: 20),
+                            // Nút chỉnh sửa
+                            FadeInUp(
+                              duration: Duration(milliseconds: 1300),
+                              child: ElevatedButton.icon(
+                                onPressed: () {
+                                  Navigator.pushNamed(context, "/edit_profile");
+                                },
+                                icon: Icon(Icons.edit, color: Colors.white),
+                                label: Text(
+                                  "Chỉnh sửa hồ sơ",
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.orange,
+                                  padding: EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  elevation: 6,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
+                    ),
                   ),
-                ),
-    );
-  }
+      ),
+    ),
+  );
+}
 
   Widget _buildInfoRow(IconData icon, String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
         children: [
-          Icon(icon, color: Colors.blue),
+          Icon(icon, color: Colors.blueAccent, size: 24),
           SizedBox(width: 10),
-          Text("$label: ", style: TextStyle(fontWeight: FontWeight.bold)),
+          Text(
+            "$label: ",
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
+          ),
           Expanded(
-            child: Text(value, style: TextStyle(color: Colors.black87)),
+            child: Text(
+              value,
+              style: GoogleFonts.poppins(
+                color: Colors.black54,
+              ),
+            ),
           ),
         ],
       ),
@@ -133,7 +261,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   String _formatDate(dynamic timestamp) {
-    if (timestamp is String) return timestamp.substring(0, 10);
+    if (timestamp is Timestamp) {
+      return DateFormat('dd/MM/yyyy').format(timestamp.toDate());
+    } else if (timestamp is String) {
+      return timestamp.length >= 10 ? timestamp.substring(0, 10) : "Không xác định";
+    }
     return "Không xác định";
   }
 }

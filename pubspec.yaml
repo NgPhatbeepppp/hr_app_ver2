@@ -26,7 +26,9 @@ dependencies:
   permission_handler: ^11.0.1
   excel: ^2.0.0-null-safety-3
   path_provider: ^2.1.1
-  universal_html: ^2.2.4 # Dùng để tải file trên web
+  universal_html: ^2.2.4 # Dùng để tải file trên web  
+  flutter_local_notifications: ^17.2.1
+  animate_do: ^4.2.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
